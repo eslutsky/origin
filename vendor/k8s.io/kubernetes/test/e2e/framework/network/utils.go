@@ -336,13 +336,13 @@ func (config *NetworkingTestConfig) DialFromNode(protocol, targetIP string, targ
 	if protocol == "udp" {
 		// TODO: It would be enough to pass 1s+epsilon to timeout, but unfortunately
 		// busybox timeout doesn't support non-integer values.
-		cmd = fmt.Sprintf("echo hostName | nc -w 1 -u %s %d", targetIP, targetPort)
+		cmd = fmt.Sprintf("echo hostName | nc -w 2 -u %s %d", targetIP, targetPort)
 	} else {
 		ipPort := net.JoinHostPort(targetIP, strconv.Itoa(targetPort))
 		// The current versions of curl included in CentOS and RHEL distros
 		// misinterpret square brackets around IPv6 as globbing, so use the -g
 		// argument to disable globbing to handle the IPv6 case.
-		cmd = fmt.Sprintf("curl -g -q -s --max-time 15 --connect-timeout 1 http://%s/hostName", ipPort)
+		cmd = fmt.Sprintf("curl -g -q -s --max-time 15 --connect-timeout 2 http://%s/hostName", ipPort)
 	}
 
 	// TODO: This simply tells us that we can reach the endpoints. Check that
@@ -385,7 +385,7 @@ func (config *NetworkingTestConfig) DialFromNode(protocol, targetIP string, targ
 // test container running with host networking, and fails if the output
 // doesn't match the expected string.
 func (config *NetworkingTestConfig) GetSelfURL(port int32, path string, expected string) {
-	cmd := fmt.Sprintf("curl -i -q -s --connect-timeout 1 http://localhost:%d%s", port, path)
+	cmd := fmt.Sprintf("curl -i -q -s --connect-timeout 2 http://localhost:%d%s", port, path)
 	ginkgo.By(fmt.Sprintf("Getting kube-proxy self URL %s", path))
 	config.executeCurlCmd(cmd, expected)
 }
@@ -395,7 +395,7 @@ func (config *NetworkingTestConfig) GetSelfURL(port int32, path string, expected
 // code doesn't match the expected string.
 func (config *NetworkingTestConfig) GetSelfURLStatusCode(port int32, path string, expected string) {
 	// check status code
-	cmd := fmt.Sprintf("curl -o /dev/null -i -q -s -w %%{http_code} --connect-timeout 1 http://localhost:%d%s", port, path)
+	cmd := fmt.Sprintf("curl -o /dev/null -i -q -s -w %%{http_code} --connect-timeout 2 http://localhost:%d%s", port, path)
 	ginkgo.By(fmt.Sprintf("Checking status code against http://localhost:%d%s", port, path))
 	config.executeCurlCmd(cmd, expected)
 }
